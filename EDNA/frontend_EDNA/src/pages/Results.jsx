@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../utils/config';
+import { DEMO_DATASETS, getDemoDatasetById } from '../utils/demoDatasets';
 import './Results.css';
 import { ResponsivePie } from '@nivo/pie';
 import { ResponsiveBar } from '@nivo/bar';
 import { ResponsiveHeatMap } from '@nivo/heatmap';
 import { ResponsiveScatterPlot } from '@nivo/scatterplot';
 import { ResponsiveSankey } from '@nivo/sankey';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { Compass, Database, Layers, ArrowRight, CheckCircle2, Download, Info, RefreshCw } from 'lucide-react';
 
 const renderQCPanel = (qcChartData) => (
   <div className="visualization-section">
@@ -29,7 +30,7 @@ const renderQCPanel = (qcChartData) => (
         borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
         enableArcLinkLabels={true}
         arcLinkLabelsSkipAngle={10}
-        arcLinkLabelsTextColor="#333333"
+        arcLinkLabelsTextColor="#e2e8f0"
         arcLinkLabelsThickness={2}
         arcLinkLabelsColor={{ from: 'color' }}
         arcLabelsSkipAngle={10}
@@ -46,9 +47,9 @@ const renderQCPanel = (qcChartData) => (
       </div>
       <ResponsiveBar
         data={[
-          { metric: 'Q20', value: qcChartData.qualityStats.q20, color: '#3b82f6' },
-          { metric: 'Q30', value: qcChartData.qualityStats.q30, color: '#6366f1' },
-          { metric: 'GC%', value: qcChartData.qualityStats.gc, color: '#8b5cf6' }
+          { metric: 'Q20', value: qcChartData.qualityStats.q20, color: '#00b4d8' },
+          { metric: 'Q30', value: qcChartData.qualityStats.q30, color: '#0077b6' },
+          { metric: 'GC%', value: qcChartData.qualityStats.gc, color: '#03045e' }
         ]}
         keys={['value']}
         indexBy="metric"
@@ -84,8 +85,58 @@ const renderQCPanel = (qcChartData) => (
   </div>
 );
 
-const Results = ({ currentRunId }) => {
+const Results = ({ currentRunId, setCurrentRunId, onSelectDemo, onNavigate }) => {
   const [results, setResults] = useState({ summaryMetrics: [], noveltyTable: [], artifacts: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showAll, setShowAll] = useState(false);
+  const [selectedNovelty, setSelectedNovelty] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState(null);
+  const [showMetricModal, setShowMetricModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('qc');
+
+  // Dynamic Chart States
+  const [qcChartData, setQcChartData] = useState({
+    retained: 95,
+    removed: 5,
+    qualityStats: { q20: 98.5, q30: 95.2, gc: 47.3 }
+  });
+
+  const [alphaData, setAlphaData] = useState([
+    { sample: 'Sample A', richness: 120, shannon: 3.2, simpson: 0.85 },
+    { sample: 'Sample B', richness: 95, shannon: 2.8, simpson: 0.82 },
+    { sample: 'Sample C', richness: 150, shannon: 3.5, simpson: 0.89 }
+  ]);
+
+  const [betaData, setBetaData] = useState({
+    pcoaPoints: [
+      { id: 'Sample A', x: 0.2, y: 0.3 },
+      { id: 'Sample B', x: -0.1, y: 0.4 },
+      { id: 'Sample C', x: 0.3, y: -0.2 }
+    ],
+    heatmapData: [
+      { id: 'Sample A', data: [{ x: 'Sample A', y: 0 }, { x: 'Sample B', y: 0.3 }, { x: 'Sample C', y: 0.5 }] },
+      { id: 'Sample B', data: [{ x: 'Sample A', y: 0.3 }, { x: 'Sample B', y: 0 }, { x: 'Sample C', y: 0.4 }] },
+      { id: 'Sample C', data: [{ x: 'Sample A', y: 0.5 }, { x: 'Sample B', y: 0.4 }, { x: 'Sample C', y: 0 }] }
+    ]
+  });
+
+  const [taxonomyData, setTaxonomyData] = useState({
+    sankeyData: {
+      nodes: [{ id: 'Bacteria' }, { id: 'Proteobacteria' }, { id: 'Gammaproteobacteria' }, { id: 'Unclassified' }],
+      links: [
+        { source: 'Bacteria', target: 'Proteobacteria', value: 20 },
+        { source: 'Proteobacteria', target: 'Gammaproteobacteria', value: 15 },
+        { source: 'Bacteria', target: 'Unclassified', value: 5 }
+      ]
+    },
+    stackedBarData: [
+      { sample: 'Sample A', Proteobacteria: 45, Firmicutes: 30, Bacteroidetes: 15, Unclassified: 10 },
+      { sample: 'Sample B', Proteobacteria: 40, Firmicutes: 35, Bacteroidetes: 20, Unclassified: 5 }
+    ]
+  });
+
   const normalizeRow = (r) => ({
     id: r.id ?? r.ASV_ID ?? r.asv_id ?? '',
     noveltyScore: String(r.noveltyScore ?? r.novelty_score ?? ''),
@@ -97,139 +148,84 @@ const Results = ({ currentRunId }) => {
     depth: r.depth ?? r.Depth ?? r.depth_m ?? null,
     location: r.location ?? r.site ?? ''
   });
+
   const fmt = (v) => (v === null || v === undefined || v === '' ? '-' : v);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [showAll, setShowAll] = useState(false);
-  const [view, setView] = useState('both');
-  const [selectedNovelty, setSelectedNovelty] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState(null);
-  const [showMetricModal, setShowMetricModal] = useState(false);
-
-  // New state variables for visualizations
-  const [activeTab, setActiveTab] = useState('qc');
-  const [phylogenyColorBy, setPhylogenyColorBy] = useState('taxonomy');
-  const [samplingMapVisible, setSamplingMapVisible] = useState(true);
-
-  // Mock data for visualizations
-  const qcChartData = {
-    retained: 95,
-    removed: 5,
-    qualityStats: {
-      q20: 98.5,
-      q30: 95.2,
-      gc: 47.3
-    }
-  };
-
-  const alphaData = [
-    { sample: 'Sample A', richness: 120, shannon: 3.2, simpson: 0.85 },
-    { sample: 'Sample B', richness: 95, shannon: 2.8, simpson: 0.82 },
-    { sample: 'Sample C', richness: 150, shannon: 3.5, simpson: 0.89 }
-  ];
-
-  const betaData = {
-    pcoaPoints: [
-      { id: 'Sample A', x: 0.2, y: 0.3 },
-      { id: 'Sample B', x: -0.1, y: 0.4 },
-      { id: 'Sample C', x: 0.3, y: -0.2 }
-    ],
-    heatmapData: [
-      { id: 'Sample A', data: [
-        { x: 'Sample A', y: 0 },
-        { x: 'Sample B', y: 0.3 },
-        { x: 'Sample C', y: 0.5 }
-      ]},
-      { id: 'Sample B', data: [
-        { x: 'Sample A', y: 0.3 },
-        { x: 'Sample B', y: 0 },
-        { x: 'Sample C', y: 0.4 }
-      ]},
-      { id: 'Sample C', data: [
-        { x: 'Sample A', y: 0.5 },
-        { x: 'Sample B', y: 0.4 },
-        { x: 'Sample C', y: 0 }
-      ]}
-    ]
-  };
-
-  const taxonomyData = {
-    sankeyData: {
-      nodes: [
-        { id: 'Bacteria' },
-        { id: 'Proteobacteria' },
-        { id: 'Gammaproteobacteria' },
-        { id: 'Unclassified' }
-      ],
-      links: [
-        { source: 'Bacteria', target: 'Proteobacteria', value: 20 },
-        { source: 'Proteobacteria', target: 'Gammaproteobacteria', value: 15 },
-        { source: 'Bacteria', target: 'Unclassified', value: 5 }
-      ]
-    },
-    stackedBarData: [
-      {
-        sample: 'Sample A',
-        Proteobacteria: 45,
-        Firmicutes: 30,
-        Bacteroidetes: 15,
-        Unclassified: 10
-      },
-      {
-        sample: 'Sample B',
-        Proteobacteria: 40,
-        Firmicutes: 35,
-        Bacteroidetes: 20,
-        Unclassified: 5
-      }
-    ]
-  };
-
-  const samplingMapData = [
-    { id: 1, lat: 12.34, lon: 56.78, depth: 3000, novelASVs: 3, sample: 'Sample A' },
-    { id: 2, lat: 22.11, lon: 44.55, depth: 2500, novelASVs: 1, sample: 'Sample B' }
-  ];
 
   useEffect(() => {
     if (currentRunId) {
       loadResults();
+    } else {
+      // Default to demo-abyssal if no runId
+      const defaultDemo = DEMO_DATASETS[0];
+      setResults({
+        summaryMetrics: defaultDemo.summaryMetrics,
+        noveltyTable: defaultDemo.noveltyTable.map(normalizeRow),
+        artifacts: defaultDemo.artifacts
+      });
+      setQcChartData(defaultDemo.qcChartData);
+      setAlphaData(defaultDemo.alphaData);
+      setBetaData(defaultDemo.betaData);
+      setTaxonomyData(defaultDemo.taxonomyData);
+      setLoading(false);
     }
   }, [currentRunId]);
 
+  const loadResults = async () => {
+    setLoading(true);
+    setError('');
 
-const loadResults = async () => {
-  try {
-    const response = await fetch(`${API_BASE}/results/${currentRunId}`);
-    if (!response.ok) throw new Error('Failed to load results');
-    const data = await response.json();
-
-    const normalized = {
-      summaryMetrics: data.summaryMetrics || data.summary || [],
-      noveltyTable: data.noveltyTable || data.novelty || [],
-      artifacts: data.artifacts || []
-    };
-
-    // Ensure report
-    if (!normalized.artifacts.find(a => a.filename === 'report.html')) {
-      normalized.artifacts.push({ filename: 'report.html', url: '#', size: 2048576 });
+    // Check if currentRunId is a demo dataset ID
+    const demo = DEMO_DATASETS.find(d => d.id === currentRunId);
+    if (demo) {
+      setResults({
+        summaryMetrics: demo.summaryMetrics,
+        noveltyTable: demo.noveltyTable.map(normalizeRow),
+        artifacts: demo.artifacts
+      });
+      setQcChartData(demo.qcChartData);
+      setAlphaData(demo.alphaData);
+      setBetaData(demo.betaData);
+      setTaxonomyData(demo.taxonomyData);
+      setLoading(false);
+      return;
     }
 
-    // IMPORTANT: normalize each row so abundance/depth/location exist
-    setResults({
-      summaryMetrics: normalized.summaryMetrics,
-      noveltyTable: (normalized.noveltyTable || []).map(normalizeRow),
-      artifacts: normalized.artifacts
-    });
+    try {
+      const response = await fetch(`${API_BASE}/results/${currentRunId}`);
+      if (!response.ok) throw new Error('Failed to load results from backend server');
+      const data = await response.json();
 
-    // Optional: debug to verify fields exist
-    console.log('First novelty row from API:', (normalized.noveltyTable || [])[0]);
-  } catch (error) {
-    setError(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+      const normalized = {
+        summaryMetrics: data.summaryMetrics || data.summary || [],
+        noveltyTable: data.noveltyTable || data.novelty || [],
+        artifacts: data.artifacts || []
+      };
+
+      if (!normalized.artifacts.find(a => a.filename === 'report.html')) {
+        normalized.artifacts.push({ filename: 'report.html', url: '#', size: 2048576 });
+      }
+
+      setResults({
+        summaryMetrics: normalized.summaryMetrics,
+        noveltyTable: (normalized.noveltyTable || []).map(normalizeRow),
+        artifacts: normalized.artifacts
+      });
+    } catch (err) {
+      // Graceful fallback to demo dataset if backend error occurs
+      const fallbackDemo = getDemoDatasetById(currentRunId);
+      setResults({
+        summaryMetrics: fallbackDemo.summaryMetrics,
+        noveltyTable: fallbackDemo.noveltyTable.map(normalizeRow),
+        artifacts: fallbackDemo.artifacts
+      });
+      setQcChartData(fallbackDemo.qcChartData);
+      setAlphaData(fallbackDemo.alphaData);
+      setBetaData(fallbackDemo.betaData);
+      setTaxonomyData(fallbackDemo.taxonomyData);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleViewNovelty = (item) => {
     // Add mock visualization data
@@ -704,8 +700,28 @@ const renderSamplingMap = () => {
     <div className="results-page-container">
       <div className="results-content">
         <div className="results-header">
-          <h1 className="results-title">Analysis Results</h1>
-          <p className="results-subtitle">Run ID: {currentRunId}</p>
+          <div className="results-title-group">
+            <h1 className="results-title">Analysis Results</h1>
+            <p className="results-subtitle">Active Run ID: <code className="run-id-pill">{currentRunId}</code></p>
+          </div>
+
+          {/* Test Case Dataset Switcher Toolbar */}
+          <div className="demo-dataset-toolbar">
+            <span className="toolbar-label">Explore Test Cases:</span>
+            <div className="toolbar-buttons">
+              {DEMO_DATASETS.map((d) => (
+                <button
+                  key={d.id}
+                  className={`toolbar-btn ${currentRunId === d.id ? 'active' : ''}`}
+                  onClick={() => onSelectDemo(d.id)}
+                  title={d.subtitle}
+                >
+                  <span className="btn-tag">{d.tag}</span>
+                  <span className="btn-title">{d.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Summary Metrics */}

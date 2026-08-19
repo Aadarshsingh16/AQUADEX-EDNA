@@ -7,7 +7,7 @@ import Footer from '../components/Footer'; // Add this import
 
 import './home.css';
 
-export default function Home({ onNavigate }) {
+export default function Home({ onNavigate, onSelectDemo }) {
   const heroRef = useRef(null);
 
   useEffect(() => {
@@ -62,12 +62,20 @@ export default function Home({ onNavigate }) {
               </span>
               <span className="subtitle-suffix"> into actionable insights</span>
             </div>
-            <button 
-              className="btn-primary hero-cta" 
-              onClick={() => onNavigate('run')}
-            >
-              Start Analysis
-            </button>
+            <div className="hero-cta-group">
+              <button 
+                className="btn-primary hero-cta" 
+                onClick={() => onNavigate('run')}
+              >
+                Start Analysis
+              </button>
+              <button 
+                className="btn-secondary hero-cta-secondary" 
+                onClick={() => onSelectDemo ? onSelectDemo('demo-abyssal') : onNavigate('results')}
+              >
+                Explore Sample Results
+              </button>
+            </div>
           </div>
 
           <div className="hero-right animate-on-scroll">

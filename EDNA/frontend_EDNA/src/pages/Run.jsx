@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Loader, Compass, Sparkles, Database, ArrowRight } from 'lucide-react';
 import { API_BASE } from '../utils/config';
+import { DEMO_DATASETS } from '../utils/demoDatasets';
 import './run.css';
 
-const Run = ({ onNavigate, setCurrentRunId }) => {
+const Run = ({ onNavigate, setCurrentRunId, onSelectDemo }) => {
   const [files, setFiles] = useState([]);
   const [marker, setMarker] = useState('16S');
   const [readType, setReadType] = useState('short');
@@ -124,7 +125,49 @@ const Run = ({ onNavigate, setCurrentRunId }) => {
       <div className="run-container">
         <div className="run-header">
           <h1 className="run-title">Run eDNA Analysis</h1>
-          <p className="run-subtitle">Upload your FASTA files and configure your analysis pipeline</p>
+          <p className="run-subtitle">Upload your FASTA files or explore pre-analyzed deep sea test cases</p>
+        </div>
+
+        {/* Demo Datasets Explorer Banner */}
+        <div className="demo-explorer-section">
+          <div className="demo-section-header">
+            <div className="demo-title-group">
+              <Compass className="demo-header-icon" />
+              <div>
+                <h2 className="demo-section-title">Explore Pre-Analyzed Test Cases</h2>
+                <p className="demo-section-subtitle">No files to upload? Jump straight into interactive results with curated deep-sea datasets</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="demo-cards-grid">
+            {DEMO_DATASETS.map((demo) => (
+              <div 
+                key={demo.id} 
+                className="demo-card"
+                onClick={() => onSelectDemo(demo.id)}
+              >
+                <div className="demo-card-badge">{demo.tag}</div>
+                <h3 className="demo-card-title">{demo.title}</h3>
+                <p className="demo-card-sub">{demo.subtitle}</p>
+                <div className="demo-card-meta">
+                  <span><strong>Marker:</strong> {demo.marker}</span>
+                  <span><strong>Depth:</strong> {demo.depth}</span>
+                </div>
+                <div className="demo-card-stats">
+                  <span className="stat-pill">{demo.readsCount}</span>
+                  <span className="stat-pill highlight">{demo.summaryMetrics.find(m => m.label.includes('Novel'))?.value || 'Novel ASVs'}</span>
+                </div>
+                <button className="demo-card-btn">
+                  Explore Results <ArrowRight size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="run-divider">
+          <span>OR UPLOAD YOUR OWN SEQUENCING DATA</span>
         </div>
 
         <div className="run-content">
