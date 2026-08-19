@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-typed": "^2.0.12",
+    "typewriter-effect": "^2.22.0"
+  }
+}

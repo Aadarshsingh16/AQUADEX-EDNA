@@ -1,0 +1,522 @@
+/* Features Section - Benchling Style */
+.features-section {
+  background-color: #ffffff;
+  padding: 6rem 2rem;
+  position: relative;
+}
+
+.features-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 2fr;   /* Left = sticky text | Right = scroll grid */
+  gap: 3rem;
+  align-items: start;
+}
+
+.features-header {
+  position: sticky;
+  top: 100px; /* distance from top of viewport when scrolling */
+  align-self: start; /* ensure it doesn't stretch vertically */
+  max-width: 400px;  /* keeps it narrow and readable */
+  text-align: left; /* Align text to left for grid layout */
+}
+
+.features-overline {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0052FF;
+  margin-bottom: 1rem;
+}
+
+.features-main-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  color: #0A0A0A;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.features-subtitle {
+  font-size: 1.25rem;
+  color: #6B7280;
+  line-height: 1.6;
+  margin: 0; /* Remove auto margin */
+  max-width: 100%; /* Use full width of container */
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Feature Card */
+.feature-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 1.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.feature-card.animate-in {
+  animation: cardFadeIn 0.6s ease forwards;
+}
+
+@keyframes cardFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  border-color: #D1D5DB;
+}
+
+.feature-card-content {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+/* Icon Wrapper */
+.feature-icon-wrapper {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: #F0F7FF;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon-wrapper {
+  background: #0052FF;
+}
+
+.feature-icon {
+  color: #0052FF;
+  transition: color 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  color: #ffffff;
+}
+
+.feature-icon-image {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon-image {
+  filter: brightness(0) invert(1);
+}
+
+/* Text Content */
+.feature-text {
+  flex: 1;
+}
+
+.feature-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0A0A0A;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.feature-description {
+  font-size: 0.875rem;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+.features-cta {
+  grid-column: 2;              /* force button into right column */
+  display: flex;
+  justify-content: center;     /* center horizontally */
+  margin-top: 2rem;
+}
+
+.btn-explore-all {
+  background: none;
+  border: 2px solid #E5E7EB;
+  color: #374151;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-explore-all:hover {
+  border-color: #0052FF;
+  color: #0052FF;
+  background-color: #F0F7FF;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .features-container {
+    grid-template-columns: 1fr; /* Single column on tablet */
+    gap: 2rem;
+  }
+
+  .features-header {
+    position: relative; /* Remove sticky on smaller screens */
+    top: auto;
+    max-width: 100%;
+    text-align: center; /* Center align on smaller screens */
+    margin-bottom: 2rem;
+  }
+
+  .features-subtitle {
+    max-width: 700px;
+    margin: 0 auto; /* Center subtitle on smaller screens */
+  }
+
+  .features-cta {
+    grid-column: 1; /* Reset grid column */
+    justify-content: center;
+  }
+}
+
+@media (max-width: 968px) {
+  .features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .features-main-title {
+    font-size: 2rem;
+  }
+
+  .features-subtitle {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .features-section {
+    padding: 4rem 1rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem;
+  }
+
+  .features-header {
+    margin-bottom: 3rem;
+  }
+
+  .features-main-title {
+    font-size: 1.75rem;
+  }
+
+  .features-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .feature-card,
+  .features-header,
+  .features-cta {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  
+  .feature-card {
+    transition: box-shadow 0.2s ease;
+  }
+}
+
+/* Modal Styles - Keep all your existing modal styles below */
+.feature-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  padding: 1rem;
+}
+
+/* ... rest of your modal styles remain the same ... */
+.feature-modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.feature-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.feature-modal-overlay.open .feature-modal {
+  transform: scale(1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #6B7280;
+  transition: color 0.2s ease;
+  z-index: 1;
+}
+
+.modal-close:hover {
+  color: #0A0A0A;
+}
+
+.modal-header {
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.modal-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  background-color: #F0F7FF;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.modal-icon {
+  color: #0052FF;
+}
+
+.modal-icon-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0A0A0A;
+  margin: 0;
+}
+
+.modal-content {
+  padding: 2rem;
+}
+
+.modal-overview {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #4B5563;
+  margin-bottom: 2rem;
+}
+
+.modal-section {
+  margin-bottom: 2rem;
+}
+
+.modal-section:last-child {
+  margin-bottom: 0;
+}
+
+.modal-section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0A0A0A;
+  margin-bottom: 1rem;
+}
+
+.modal-feature-list,
+.modal-benefit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-feature-list li,
+.modal-benefit-list li {
+  position: relative;
+  padding-left: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: #4B5563;
+  line-height: 1.5;
+}
+
+.modal-feature-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #10B981;
+  font-weight: bold;
+}
+
+.modal-benefit-list li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #0052FF;
+  font-weight: bold;
+}
+
+.modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #E5E7EB;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-modal-secondary,
+.btn-modal-primary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-modal-secondary {
+  background: #F3F4F6;
+  color: #4B5563;
+}
+
+.btn-modal-secondary:hover {
+  background: #E5E7EB;
+  color: #1F2937;
+}
+
+.btn-modal-primary {
+  background: #0052FF;
+  color: #ffffff;
+}
+
+.btn-modal-primary:hover {
+  background: #0041CC;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.3);
+}
+
+/* Scrollbar styling for modal */
+.feature-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.feature-modal::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 4px;
+}
+
+.feature-modal::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 4px;
+}
+
+.feature-modal::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .feature-modal {
+    max-width: calc(100% - 2rem);
+    margin: 1rem;
+  }
+
+  .modal-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-overview {
+    font-size: 1rem;
+  }
+
+  .modal-footer {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+  }
+
+  .btn-modal-secondary,
+  .btn-modal-primary {
+    width: 100%;
+  }
+}
+
+/* Animation for modal content */
+@keyframes modalContentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-modal-overlay.open .modal-content > * {
+  animation: modalContentFadeIn 0.4s ease forwards;
+}
+
+.feature-modal-overlay.open .modal-section:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
